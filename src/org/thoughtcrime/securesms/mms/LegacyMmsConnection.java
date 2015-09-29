@@ -45,7 +45,7 @@ import org.thoughtcrime.securesms.util.Util;
 import org.whispersystems.libaxolotl.util.guava.Optional;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.NumberParseException;
-import com.google.i18n.phonenumbers.Phonenumber;
+import com.google.i18n.phonenumbers.Phonenumber.PhoneNumber;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -197,15 +197,16 @@ public abstract class LegacyMmsConnection {
   }
 
   protected List<Header> getBaseHeaders() {
-    final String number = TelephonyUtil.getManager(context).getLine1Number();
-    final String numberWithoutCC;
-    Phonenumber phonenumber = PhoneNumberUtil.getInstance().parse(number, null);
+    final String number = TelephonyUtil.getManager(context).getLine1Number();;
+    PhoneNumber phonenumber = new PhoneNumber();
     
     try {
-      numberWithoutCC = PhoneNumberUtil.getInstance().getNationalSignificantNumber(phonenumber);
+      phonenumber = PhoneNumberUtil.getInstance().parse(number, null);
     } catch (NumberParseException e) {
       Log.w(TAG, e);
     }
+ 
+    final String numberWithoutCC = PhoneNumberUtil.getInstance().getNationalSignificantNumber(phonenumber);
  
     return new LinkedList<Header>() {{
       add(new BasicHeader("Accept", "*/*, application/vnd.wap.mms-message, application/vnd.wap.sic"));
